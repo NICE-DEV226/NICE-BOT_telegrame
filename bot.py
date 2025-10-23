@@ -31,12 +31,11 @@ from commands.channel_management import (list_groups, leave_group, broadcast_to_
 # Load environment variables
 load_dotenv()
 
-# Debug: Check if .env is loaded
-import os
-print(f"🔍 DEBUG bot.py: BOT_TOKEN = {os.getenv('BOT_TOKEN', 'NOT_FOUND')[:20]}...")
-print(f"🔍 DEBUG bot.py: ADMIN_USER_ID = '{os.getenv('ADMIN_USER_ID', 'NOT_FOUND')}'")
-
 logger = logging.getLogger(__name__)
+
+# Debug: Check if .env is loaded
+logger.info(f"DEBUG bot.py: BOT_TOKEN = {os.getenv('BOT_TOKEN', 'NOT_FOUND')[:20]}...")
+logger.info(f"DEBUG bot.py: ADMIN_USER_ID = '{os.getenv('ADMIN_USER_ID', 'NOT_FOUND')}'")
 
 def setup_bot() -> Application:
     """Setup and configure the Telegram bot"""

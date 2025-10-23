@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 Admin commands for NICE-BOT
 Only accessible to bot administrators
 """
 
 import os
+import sys
 import logging
 from datetime import datetime, timedelta
 from telegram import Update
@@ -12,6 +14,13 @@ from telegram.ext import ContextTypes
 from dotenv import load_dotenv
 
 from db import get_user_stats, get_recent_history, get_all_users, get_connection
+
+# Fix encoding for Windows console
+if sys.platform == 'win32':
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+    except:
+        pass
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +31,7 @@ load_dotenv()
 ADMIN_USER_ID = os.getenv("ADMIN_USER_ID", "")
 
 # Debug: Print what we're loading
-print(f"🔍 DEBUG: ADMIN_USER_ID loaded = '{ADMIN_USER_ID}'")
+logger.info(f"DEBUG: ADMIN_USER_ID loaded = '{ADMIN_USER_ID}'")
 
 def is_admin(user_id: int) -> bool:
     """Check if user is admin"""
