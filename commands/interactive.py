@@ -121,12 +121,45 @@ Utilisez les boutons ci-dessous pour accéder rapidement aux fonctions populaire
         parse_mode='Markdown'
     )
 
+async def edit_message_universal(query, text, reply_markup):
+    """Helper function to edit message (handles both caption and text)"""
+    try:
+        # Try editing caption first (for messages with photos)
+        await query.edit_message_caption(
+            caption=text,
+            reply_markup=reply_markup,
+            parse_mode='Markdown'
+        )
+    except:
+        try:
+            # If no caption, try editing text
+            await query.edit_message_text(
+                text,
+                reply_markup=reply_markup,
+                parse_mode='Markdown'
+            )
+        except Exception as e:
+            logger.error(f"Failed to edit message: {e}")
+            # Last resort: send new message
+            await query.message.reply_text(
+                text,
+                reply_markup=reply_markup,
+                parse_mode='Markdown'
+            )
+
 async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle callback queries from inline keyboards"""
     query = update.callback_query
+    
+    # Log the callback for debugging
+    logger.info(f"🔔 Callback received: {query.data} from user {update.effective_user.id}")
+    
+    # Answer the callback immediately to remove loading state
     await query.answer()
     
     data = query.data
+    
+    logger.info(f"🎯 Processing callback data: {data}")
     
     if data == "cat_utils":
         keyboard = [
@@ -139,10 +172,10 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         
-        await query.edit_message_text(
+        await edit_message_universal(
+            query,
             "🧰 **UTILITAIRES**\n\nChoisissez l'outil que vous souhaitez utiliser :",
-            reply_markup=reply_markup,
-            parse_mode='Markdown'
+            reply_markup
         )
     
     elif data == "cat_ai":
@@ -154,10 +187,10 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         
-        await query.edit_message_text(
+        await edit_message_universal(
+            query,
             "🤖 **INTELLIGENCE ARTIFICIELLE**\n\nQue voulez-vous faire avec l'IA ?",
-            reply_markup=reply_markup,
-            parse_mode='Markdown'
+            reply_markup
         )
     
     elif data == "cat_fun":
@@ -170,10 +203,10 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         
-        await query.edit_message_text(
+        await edit_message_universal(
+            query,
             "🎮 **FUN & DIVERTISSEMENT**\n\nUn peu de détente ?",
-            reply_markup=reply_markup,
-            parse_mode='Markdown'
+            reply_markup
         )
     
     elif data == "cat_info":
@@ -184,10 +217,10 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         
-        await query.edit_message_text(
+        await edit_message_universal(
+            query,
             "📰 **INFO & ACTUALITÉS**\n\nRestez informé !",
-            reply_markup=reply_markup,
-            parse_mode='Markdown'
+            reply_markup
         )
     
     elif data == "cat_game":
@@ -199,10 +232,10 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         
-        await query.edit_message_text(
+        await edit_message_universal(
+            query,
             "🎮 **GAMIFICATION**\n\nVotre progression et achievements :",
-            reply_markup=reply_markup,
-            parse_mode='Markdown'
+            reply_markup
         )
     
     elif data == "cat_notif":
@@ -214,10 +247,10 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         
-        await query.edit_message_text(
+        await edit_message_universal(
+            query,
             "⏰ **NOTIFICATIONS**\n\nGérez vos rappels et alertes :",
-            reply_markup=reply_markup,
-            parse_mode='Markdown'
+            reply_markup
         )
     
     elif data == "cat_dev":
@@ -229,10 +262,10 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         
-        await query.edit_message_text(
+        await edit_message_universal(
+            query,
             "🛠️ **DÉVELOPPEMENT**\n\nOutils de diagnostic :",
-            reply_markup=reply_markup,
-            parse_mode='Markdown'
+            reply_markup
         )
     
     elif data == "cat_admin":
@@ -245,10 +278,10 @@ async def handle_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         
-        await query.edit_message_text(
+        await edit_message_universal(
+            query,
             "🛡️ **ADMINISTRATION**\n\nGestion du bot (Admin uniquement) :",
-            reply_markup=reply_markup,
-            parse_mode='Markdown'
+            reply_markup
         )
     
     elif data == "about_bot":
@@ -276,77 +309,133 @@ Développé avec ❤️ par NICE-DEV
 ✨ **Merci d'utiliser NICE-BOT !**
         """
         
-        await query.edit_message_text(
+        await edit_message_universal(
+            query,
             about_text,
-            reply_markup=reply_markup,
-            parse_mode='Markdown'
+            reply_markup
         )
     
     elif data == "main_menu":
-        # Retour au menu principal
-        await interactive_menu(query, context)
+        # Retour au menu principal - recréer le menu
+        keyboard = [
+            [
+                InlineKeyboardButton("🧰 Utilitaires", callback_data="cat_utils"),
+                InlineKeyboardButton("🤖 IA & Assistant", callback_data="cat_ai")
+            ],
+            [
+                InlineKeyboardButton("🎮 Fun & Divertissement", callback_data="cat_fun"),
+                InlineKeyboardButton("📰 Info & Actualités", callback_data="cat_info")
+            ],
+            [
+                InlineKeyboardButton("🎯 Gamification", callback_data="cat_game"),
+                InlineKeyboardButton("⏰ Notifications", callback_data="cat_notif")
+            ],
+            [
+                InlineKeyboardButton("🛠️ Développement", callback_data="cat_dev"),
+                InlineKeyboardButton("🛡️ Admin", callback_data="cat_admin")
+            ],
+            [
+                InlineKeyboardButton("📞 Support WhatsApp", url="http://bit.ly/473vUob"),
+                InlineKeyboardButton("ℹ️ À Propos", callback_data="about_bot")
+            ]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        
+        menu_text = """
+╔══════════════════════════════════╗
+║       🚀 NICE-BOT PRO v2.1       ║
+║      MENU INTERACTIF MODERNE     ║
+╚══════════════════════════════════╝
+
+🎯 **Choisissez une catégorie :**
+
+Cliquez sur les boutons ci-dessous pour explorer toutes les fonctionnalités de NICE-BOT !
+
+✨ **35+ commandes disponibles**
+🤖 **IA intégrée avancée**
+🎮 **Système de gamification**
+⏰ **Notifications et rappels**
+
+💡 **Astuce :** Utilisez /quick pour les actions rapides !
+        """
+        
+        await edit_message_universal(
+            query,
+            menu_text,
+            reply_markup
+        )
     
     # Handle direct command callbacks
     elif data.startswith("cmd_"):
         command = data.replace("cmd_", "")
         
-        # Create a fake message update to simulate command execution
-        # This allows commands without parameters to work directly
+        # Create a proper Update object from the callback query
+        # This allows commands to work with the callback
         try:
             # Commands that work without parameters
             if command in ["blague", "meme", "citation", "ping", "uptime", "profil", "classement", "badges"]:
+                # Answer the callback first
+                await query.answer("⏳ Exécution de la commande...")
+                
+                # Create a fake Update with the message from the callback
+                fake_update = Update(
+                    update_id=update.update_id,
+                    message=query.message
+                )
+                fake_update.effective_user = update.effective_user
+                fake_update.effective_chat = update.effective_chat
+                
+                # Set empty args
+                context.args = []
+                
                 # Import and execute the command
                 if command == "blague":
                     from commands.info import blague
-                    await query.message.reply_text("⏳ Recherche d'une blague...")
-                    context.args = []
-                    await blague(query, context)
+                    await blague(fake_update, context)
                 elif command == "meme":
                     from commands.info import meme
-                    await query.message.reply_text("⏳ Recherche d'un meme...")
-                    context.args = []
-                    await meme(query, context)
+                    await meme(fake_update, context)
                 elif command == "citation":
                     from commands.info import citation
-                    await query.message.reply_text("⏳ Recherche d'une citation...")
-                    context.args = []
-                    await citation(query, context)
+                    await citation(fake_update, context)
                 elif command == "ping":
                     from commands.dev import ping
-                    context.args = []
-                    await ping(query, context)
+                    await ping(fake_update, context)
                 elif command == "uptime":
                     from commands.dev import uptime
-                    context.args = []
-                    await uptime(query, context)
+                    await uptime(fake_update, context)
                 elif command == "profil":
                     from commands.gamification import profile
-                    context.args = []
-                    await profile(query, context)
+                    await profile(fake_update, context)
                 elif command == "classement":
                     from commands.gamification import leaderboard
-                    context.args = []
-                    await leaderboard(query, context)
+                    await leaderboard(fake_update, context)
                 elif command == "badges":
                     from commands.gamification import all_badges
-                    context.args = []
-                    await all_badges(query, context)
+                    await all_badges(fake_update, context)
             else:
                 # Commands that need parameters
-                await query.edit_message_text(
+                await query.answer()
+                await edit_message_universal(
+                    query,
                     f"🎯 **Commande : /{command}**\n\n"
                     f"Cette commande nécessite des paramètres.\n\n"
                     f"📝 **Utilisation :**\n"
                     f"`/{command} [vos paramètres]`\n\n"
                     f"💡 **Astuce :** Tapez `/{command}` sans paramètres pour voir l'aide.",
-                    parse_mode='Markdown'
+                    None
                 )
         except Exception as e:
             logger.error(f"Error executing command {command}: {e}")
-            await query.message.reply_text(
-                f"❌ Erreur lors de l'exécution de la commande /{command}",
-                parse_mode='Markdown'
-            )
+            import traceback
+            traceback.print_exc()
+            try:
+                await query.message.reply_text(
+                    f"❌ Erreur lors de l'exécution de la commande /{command}",
+                    parse_mode='Markdown'
+                )
+            except:
+                await query.answer("❌ Erreur lors de l'exécution", show_alert=True)
 
 async def remove_keyboard(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /hidekeyboard command - Remove reply keyboard"""
