@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: nice-bot
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python main.py
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: BOT_TOKEN
+        sync: false
+      - key: LIBRETRANSLATE_URL
+        value: https://libretranslate.com
+      - key: TMDB_API_KEY
+        sync: false
+      - key: MEDIASTACK_API_KEY
+        sync: false
+      - key: ADMIN_USER_ID
+        sync: false
