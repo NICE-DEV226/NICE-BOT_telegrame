@@ -57,13 +57,13 @@ async def ai(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         ai_response = data['result']
                         
                         response_text = f"""
-🤖 **Réponse IA (PrinceTech GPT)**
+🤖 **Réponse IA**
 
 **Question :** {question}
 
 **Réponse :** {ai_response}
 
-✨ *Propulsé par PrinceTech AI*
+✨ *Propulsé par NICE-BOT AI*
                         """
                         
                         await update.message.reply_text(response_text, parse_mode='Markdown')
@@ -131,7 +131,7 @@ async def resume(update: Update, context: ContextTypes.DEFAULT_TYPE):
 **Résumé ({len(summary)} caractères) :**
 {summary}
 
-✨ *Résumé généré par PrinceTech AI*
+✨ *Résumé généré par NICE-BOT AI*
                         """
                         
                         await update.message.reply_text(response_text, parse_mode='Markdown')
@@ -192,7 +192,7 @@ async def idee(update: Update, context: ContextTypes.DEFAULT_TYPE):
 **Idées générées par IA :**
 {ideas}
 
-✨ *Propulsé par PrinceTech AI - Laissez libre cours à votre créativité !*
+✨ *Propulsé par NICE-BOT AI - Laissez libre cours à votre créativité !*
                         """
                         
                         await update.message.reply_text(response_text, parse_mode='Markdown')

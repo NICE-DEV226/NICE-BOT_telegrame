@@ -53,7 +53,7 @@ async def interactive_menu(update: Update, context: ContextTypes.DEFAULT_TYPE):
 Cliquez sur les boutons ci-dessous pour explorer toutes les fonctionnalités de NICE-BOT !
 
 ✨ **35+ commandes disponibles**
-🤖 **IA intégrée (PrinceTech GPT)**
+🤖 **IA intégrée avancée**
 🎮 **Système de gamification**
 ⏰ **Notifications et rappels**
 
@@ -289,12 +289,64 @@ Développé avec ❤️ par NICE-DEV
     # Handle direct command callbacks
     elif data.startswith("cmd_"):
         command = data.replace("cmd_", "")
-        await query.edit_message_text(
-            f"🎯 **Commande sélectionnée :** /{command}\n\n"
-            f"Tapez `/{command}` suivi de vos paramètres pour utiliser cette fonction.\n\n"
-            f"Exemple : `/{command} votre texte ici`",
-            parse_mode='Markdown'
-        )
+        
+        # Create a fake message update to simulate command execution
+        # This allows commands without parameters to work directly
+        try:
+            # Commands that work without parameters
+            if command in ["blague", "meme", "citation", "ping", "uptime", "profil", "classement", "badges"]:
+                # Import and execute the command
+                if command == "blague":
+                    from commands.info import blague
+                    await query.message.reply_text("⏳ Recherche d'une blague...")
+                    context.args = []
+                    await blague(query, context)
+                elif command == "meme":
+                    from commands.info import meme
+                    await query.message.reply_text("⏳ Recherche d'un meme...")
+                    context.args = []
+                    await meme(query, context)
+                elif command == "citation":
+                    from commands.info import citation
+                    await query.message.reply_text("⏳ Recherche d'une citation...")
+                    context.args = []
+                    await citation(query, context)
+                elif command == "ping":
+                    from commands.dev import ping
+                    context.args = []
+                    await ping(query, context)
+                elif command == "uptime":
+                    from commands.dev import uptime
+                    context.args = []
+                    await uptime(query, context)
+                elif command == "profil":
+                    from commands.gamification import profile
+                    context.args = []
+                    await profile(query, context)
+                elif command == "classement":
+                    from commands.gamification import leaderboard
+                    context.args = []
+                    await leaderboard(query, context)
+                elif command == "badges":
+                    from commands.gamification import all_badges
+                    context.args = []
+                    await all_badges(query, context)
+            else:
+                # Commands that need parameters
+                await query.edit_message_text(
+                    f"🎯 **Commande : /{command}**\n\n"
+                    f"Cette commande nécessite des paramètres.\n\n"
+                    f"📝 **Utilisation :**\n"
+                    f"`/{command} [vos paramètres]`\n\n"
+                    f"💡 **Astuce :** Tapez `/{command}` sans paramètres pour voir l'aide.",
+                    parse_mode='Markdown'
+                )
+        except Exception as e:
+            logger.error(f"Error executing command {command}: {e}")
+            await query.message.reply_text(
+                f"❌ Erreur lors de l'exécution de la commande /{command}",
+                parse_mode='Markdown'
+            )
 
 async def remove_keyboard(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /hidekeyboard command - Remove reply keyboard"""

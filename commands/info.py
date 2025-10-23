@@ -288,7 +288,7 @@ async def news(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     if not context.args:
         await update.message.reply_text(
-            "📰 **Actualités - PrinceTech Wikimedia**\n\n"
+            "📰 **Actualités**\n\n"
             "**Usage :** `/news <sujet>`\n\n"
             "**Exemples :**\n"
             "• `/news Elon Musk`\n"
@@ -335,7 +335,7 @@ async def news(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 🔗 **Plus d'infos :** {page_url if page_url else 'Non disponible'}
 
-✨ *Propulsé par PrinceTech Wikimedia*
+✨ *Propulsé par NICE-BOT*
                         """
                         
                         await update.message.reply_text(response_text, parse_mode='Markdown')
