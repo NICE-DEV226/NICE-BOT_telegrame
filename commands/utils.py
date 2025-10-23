@@ -303,6 +303,9 @@ async def meteo(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 else:
                     await update.message.reply_text("❌ Erreur lors de la géolocalisation.")
     
+    except Exception as e:
+        logger.error(f"Weather error: {e}")
+        await update.message.reply_text("❌ Erreur lors de la récupération de la météo. Service temporairement indisponible.")
 
 async def devise(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Handle /devise command - Currency conversion with built-in rates"""
